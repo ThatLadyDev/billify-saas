@@ -1,66 +1,135 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Billify SaaS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
 
-## About Laravel
+**Billify SaaS** is a multi-tenant billing microservice designed to handle subscription management, invoicing, and payment processing for a Software as a Service (SaaS) application. This microservice integrates with the **AuthoSaaS** microservice to retrieve tenant information and ensure proper billing workflows.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Subscription Management**: Create and manage subscriptions for tenants.
+- **Invoicing**: Generate invoices based on subscriptions.
+- **Payment Processing**: Process payments linked to invoices.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Getting Started
 
-## Learning Laravel
+Prerequisites
+- PHP 8.x
+- Laravel 9.x
+- Composer
+- Database (MySQL, PostgreSQL, etc.)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Clone the repository:**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   ```
+   git clone https://github.com/your-username/billify-saas.git
+   cd billify-saas
+   ```
+2. **Install dependencies:**
 
-## Laravel Sponsors
+   ```
+   composer install
+   ```
+3. **Set up your environment:**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+   ```
+   cp .env.example .env
+   ```
+4. **Generate the application key:**
 
-### Premium Partners
+   ```
+   php artisan key:generate
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Architecture
 
-## Contributing
+This microservice follows a microservices architecture, allowing for scalability and modularity. The main components are:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **AuthoSaaS**: Handles user authentication and authorization.
+- **Billify SaaS**: Manages billing workflows, including subscriptions, invoices, and payments.
 
-## Code of Conduct
+### Workflow
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The billing process consists of three main steps, each handled by a separate endpoint:
 
-## Security Vulnerabilities
+1. **Create Subscription**: 
+   - Endpoint: `POST /api/subscriptions`
+   - Description: Creates a new subscription for a tenant.
+   
+2. **Create Invoice**: 
+   - Endpoint: `POST /api/invoices`
+   - Description: Generates an invoice for the newly created subscription.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Process Payment**: 
+   - Endpoint: `POST /api/payments`
+   - Description: Processes the payment for the generated invoice.
 
-## License
+### Technical Workflow
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The workflow for billing involves the following steps:
+
+1. **Create Subscription**
+   - The frontend collects necessary data (like `tenant_id` and `plan_id`) and sends a request to the `/api/subscriptions` endpoint.
+   - Upon successful creation, the backend returns the subscription details.
+
+2. **Create Invoice**
+   - Using the `subscription_id`, the frontend calls the `/api/invoices` endpoint to create an invoice linked to the subscription.
+   - The backend returns the invoice details.
+
+3. **Process Payment**
+   - The frontend calls the `/api/payments` endpoint using the `invoice_id` to process the payment.
+   - The backend updates the invoice status to "paid" upon successful processing.
+
+## API Endpoints
+
+### 1. Create Subscription
+
+- **Method**: `POST`
+- **Endpoint**: `/api/subscriptions`
+- **Request Body**:
+  ```json
+  {
+      "tenant_id": "string",
+      "plan_id": "string"
+  }
+- **Response**: 
+  ```json
+  {
+      "subscription_id": "string",
+      "status": "active"
+  }
+
+### 2. Create Invoice
+
+- **Method**: `POST`
+- **Endpoint**: `/api/invoices`
+- **Request Body**:
+  ```json
+  {
+      "subscription_id": "string"
+  }
+- **Response**: 
+  ```json
+  {
+      "invoice_id": "string",
+      "amount": "number",
+      "status": "pending"
+  }
+
+### 3. Process Payment
+
+- **Method**: `POST`
+- **Endpoint**: `/api/payments`
+- **Request Body**:
+  ```json
+  {
+      "invoice_id": "string",
+      "payment_method": "string"
+  }
+- **Response**: 
+  ```json
+  {
+      "payment_id": "string",
+      "status": "successful"
+  }

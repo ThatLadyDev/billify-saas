@@ -14,4 +14,6 @@ class Payment extends Model
     {
         return $this->belongsTo(Invoice::class);
     }
+
+    const STATUS_COMPLETED = 'completed';
 }

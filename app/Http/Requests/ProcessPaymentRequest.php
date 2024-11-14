@@ -22,8 +22,9 @@ class ProcessPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'invoice_id' => 'required|exists:invoices,id',
             'amount' => 'required|numeric',
-            'method' => 'required|string',
+            'payment_method' => 'required|string',
         ];
     }
 }

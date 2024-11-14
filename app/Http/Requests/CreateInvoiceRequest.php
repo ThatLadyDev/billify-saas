@@ -22,7 +22,7 @@ class CreateInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => 'required|exists:tenants,id',
+            'subscription' => 'required|uuid|exists:subscriptions,uuid',
             'amount' => 'required|numeric',
         ];
     }

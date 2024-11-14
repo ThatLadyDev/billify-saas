@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Actions\GetTenant;
+use Illuminate\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateSubscriptionRequest extends FormRequest
@@ -22,10 +24,29 @@ class CreateSubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => 'required|exists:tenants,id',
+            'tenant' => 'required|uuid',
             'plan' => 'required|string',
             'start_date' => 'required|date',
-            'end_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ];
+    }
+
+    /**
+     * Get the "after" validation callables for the request.
+     */
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                // Fetch tenant information
+                $tenant = (new GetTenant())->execute($this->tenant);
+                if (!$tenant) {
+                    $validator->errors()->add(
+                        'tenant',
+                        'Tenant not found'
+                    );
+                }
+            }
         ];
     }
 }

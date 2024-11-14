@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
+            $table->uuid();
+            $table->string('tenant');
+            $table->string('plan');
+            $table->string('status');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->timestamps();
         });
     }
